@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -35,8 +36,19 @@ public class DiRegistrationGenerator : IIncrementalGenerator
                             case "SingletonServiceAttribute":
                             {
                                 var serviceType = (INamedTypeSymbol)attribute.ConstructorArguments[0].Value!;
-                                var constructor = symbol.Constructors[0];
-                                var parameterTypes = constructor.Parameters.Select(p =>
+
+                                var constructors = symbol.Constructors
+                                    .Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic)
+                                    .ToImmutableArray();
+
+                                var selected = constructors.FirstOrDefault(c =>
+                                    c.GetAttributes()
+                                        .Any(a => a.AttributeClass?.Name == "InjectionConstructorAttribute"))
+                                    ?? constructors.FirstOrDefault();
+
+                                if (selected is null) return null;
+
+                                var parameterTypes = selected.Parameters.Select(p =>
                                     p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).ToList();
 
                                 return new ServiceDescriptor(symbol.ToDisplayString(),

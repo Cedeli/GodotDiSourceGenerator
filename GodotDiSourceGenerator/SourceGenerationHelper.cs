@@ -20,6 +20,9 @@ public class SourceGenerationHelper
                                           public SingletonServiceAttribute(Type serviceType) => ServiceType = serviceType;
                                           public Type ServiceType { get; }
                                       }
+                                      
+                                      [AttributeUsage(AttributeTargets.Constructor)]
+                                      public sealed class InjectionConstructorAttribute : Attribute { }
                                   }
                                   """;
 }
