@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace GodotDiSourceGenerator;
 
 [Generator]
-public class DiRegistrationGenerator : IIncrementalGenerator
+public class RegistrationGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -41,12 +41,24 @@ public class DiRegistrationGenerator : IIncrementalGenerator
                                     .Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic)
                                     .ToImmutableArray();
 
-                                var selected = constructors.FirstOrDefault(c =>
-                                    c.GetAttributes()
+                                var target = constructors
+                                    .Where(c => c.GetAttributes()
                                         .Any(a => a.AttributeClass?.Name == "InjectionConstructorAttribute"))
-                                    ?? constructors.FirstOrDefault();
-
-                                if (selected is null) return null;
+                                    .ToImmutableArray();
+                                IMethodSymbol? selected;
+                                if (target.Length == 1)
+                                {
+                                    selected = target[0];
+                                }
+                                else
+                                {
+                                    var maxParams = constructors.Max(c => c.Parameters.Length);
+                                    var greedy = constructors
+                                        .Where(c => c.Parameters.Length == maxParams)
+                                        .ToImmutableArray();
+                                    if (greedy.Length != 1) return null;
+                                    selected = greedy[0];
+                                }
 
                                 var parameterTypes = selected.Parameters.Select(p =>
                                     p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).ToList();
