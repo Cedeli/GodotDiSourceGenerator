@@ -35,8 +35,13 @@ public class DiRegistrationGenerator : IIncrementalGenerator
                             case "SingletonServiceAttribute":
                             {
                                 var serviceType = (INamedTypeSymbol)attribute.ConstructorArguments[0].Value!;
+                                var constructor = symbol.Constructors[0];
+                                var parameterTypes = constructor.Parameters.Select(p =>
+                                    p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).ToList();
+
                                 return new ServiceDescriptor(symbol.ToDisplayString(),
-                                    serviceType.ToDisplayString(), attributeName.StartsWith("Singleton"));
+                                    serviceType.ToDisplayString(), attributeName.StartsWith("Singleton"),
+                                    parameterTypes);
                             }
                         }
                     }
@@ -57,15 +62,25 @@ public class DiRegistrationGenerator : IIncrementalGenerator
             sb.AppendLine("{");
             sb.AppendLine("     partial void RegisterGeneratedServices()");
             sb.AppendLine("     {");
-            foreach (var d in descriptors.OfType<ServiceDescriptor>())
+            foreach (var d in descriptors)
             {
-                sb.AppendLine(d.IsSingleton
-                    ? $"        RegisterSingleton<{d.Interface}, {d.Implementation}>();"
-                    : $"        RegisterTransient<{d.Interface}, {d.Implementation}>();");
+                if (d == null) continue;
+                var args = string.Join(", ", d.ParameterTypes.Select(t => $"Resolve<{t}>()"));
+
+                if (d.IsSingleton)
+                {
+                    sb.AppendLine($"        var instance_{d.Interface} = new {d.Implementation}({args});");
+                    sb.AppendLine($"        RegisterSingleton<{d.Interface}>(instance_{d.Interface});");
+                }
+                else
+                {
+                    sb.AppendLine($"        Register<{d.Interface}>(() => new {d.Implementation}({args}));");
+                }
             }
+
             sb.AppendLine("     }");
             sb.AppendLine("}");
-            
+
             ctx.AddSource("DiRegistration.g.cs", sb.ToString());
         });
     }
