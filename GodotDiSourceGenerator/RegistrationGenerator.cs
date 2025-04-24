@@ -13,68 +13,122 @@ public class RegistrationGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(ctx =>
             ctx.AddSource("ServiceAttributes.g.cs", SourceGenerationHelper.Attributes));
 
-        var serviceTypes = context.SyntaxProvider
+        var results = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: static (s, _) =>
-                    s is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
+                predicate: static (s, _) => s is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
                 transform: static (ctx, _) =>
                 {
                     var classDeclaration = (ClassDeclarationSyntax)ctx.Node;
                     var model = ctx.SemanticModel;
+
                     var symbol = model.GetDeclaredSymbol(classDeclaration);
 
-                    if (symbol == null) return null;
+                    if (symbol == null) return new ServiceResult(null, ImmutableArray<DiagnosticInfo>.Empty);
+
+                    var diagnosticBuilder = ImmutableArray.CreateBuilder<DiagnosticInfo>();
+                    ServiceDescriptor? descriptor = null;
+
                     var attributes = symbol.GetAttributes();
                     foreach (var attribute in attributes)
                     {
                         var attributeName = attribute.AttributeClass?.Name;
-                        switch (attributeName)
+
+                        if (attributeName is not ("TransientServiceAttribute" or "SingletonServiceAttribute")) continue;
+
+                        var serviceType = (INamedTypeSymbol)attribute.ConstructorArguments[0].Value!;
+
+                        var constructors = symbol.Constructors
+                            .Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic)
+                            .ToImmutableArray();
+
+                        if (constructors.Length <= 0)
                         {
-                            case null:
-                                continue;
-                            case "TransientServiceAttribute":
-                            case "SingletonServiceAttribute":
+                            var dd = new DiagnosticDescriptor(
+                                "DI1001",
+                                "No public constructors",
+                                $"Type '{symbol.Name}' has no public constructors.",
+                                "DependencyInjection",
+                                DiagnosticSeverity.Error,
+                                true
+                            );
+
+                            diagnosticBuilder.Add(new DiagnosticInfo(dd,
+                                LocationInfo.Create(classDeclaration.GetLocation())));
+                            continue;
+                        }
+
+                        var target = constructors
+                            .Where(c => c.GetAttributes()
+                                .Any(a => a.AttributeClass?.Name == "InjectionConstructorAttribute"))
+                            .ToImmutableArray();
+
+                        IMethodSymbol? selected = null;
+                        if (target.Length == 1)
+                        {
+                            selected = target[0];
+                        }
+                        else
+                        {
+                            var maxParams = constructors.Max(c => c.Parameters.Length);
+                            var greedy = constructors
+                                .Where(c => c.Parameters.Length == maxParams)
+                                .ToImmutableArray();
+                            if (greedy.Length == 1)
                             {
-                                var serviceType = (INamedTypeSymbol)attribute.ConstructorArguments[0].Value!;
-
-                                var constructors = symbol.Constructors
-                                    .Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic)
-                                    .ToImmutableArray();
-
-                                var target = constructors
-                                    .Where(c => c.GetAttributes()
-                                        .Any(a => a.AttributeClass?.Name == "InjectionConstructorAttribute"))
-                                    .ToImmutableArray();
-                                IMethodSymbol? selected;
-                                if (target.Length == 1)
-                                {
-                                    selected = target[0];
-                                }
-                                else
-                                {
-                                    var maxParams = constructors.Max(c => c.Parameters.Length);
-                                    var greedy = constructors
-                                        .Where(c => c.Parameters.Length == maxParams)
-                                        .ToImmutableArray();
-                                    if (greedy.Length != 1) return null;
-                                    selected = greedy[0];
-                                }
-
-                                var parameterTypes = selected.Parameters.Select(p =>
-                                    p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat)).ToList();
-
-                                return new ServiceDescriptor(symbol.ToDisplayString(),
-                                    serviceType.ToDisplayString(), attributeName.StartsWith("Singleton"),
-                                    parameterTypes);
+                                selected = greedy[0];
+                            }
+                            else
+                            {
+                                var dd = new DiagnosticDescriptor(
+                                    "DI1002",
+                                    "Ambiguous constructor",
+                                    $"Type '{symbol.Name}' has multiple constructors with {maxParams} parameters",
+                                    "DependencyInjection",
+                                    DiagnosticSeverity.Error,
+                                    true
+                                );
+                                diagnosticBuilder.Add(new DiagnosticInfo(dd,
+                                    LocationInfo.Create(classDeclaration.GetLocation())));
                             }
                         }
+
+                        if (selected is null) return new ServiceResult(descriptor, diagnosticBuilder.ToImmutable());
+                        var parameterTypes = selected.Parameters
+                            .Select(p => p.Type
+                                .ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
+                            .ToList();
+
+                        descriptor = new ServiceDescriptor(symbol.ToDisplayString(),
+                            serviceType.ToDisplayString(), attributeName.StartsWith("Singleton"),
+                            parameterTypes);
+
+                        return new ServiceResult(descriptor, diagnosticBuilder.ToImmutable());
                     }
 
-                    return null;
+                    return new ServiceResult(null, ImmutableArray<DiagnosticInfo>.Empty);
                 })
-            .Where(descriptor => descriptor is not null);
+            .Where(r => r.Descriptor is not null || r.Diagnostics.Any());
 
-        context.RegisterSourceOutput(serviceTypes.Collect(), static (ctx, list) =>
+        var diagnostics = results
+            .Select((result, _) => result.Diagnostics)
+            .Where(arr => arr.Any())
+            .Collect();
+
+        context.RegisterSourceOutput(diagnostics, (ctx, diagnosticArrays) =>
+        {
+            foreach (var info in diagnosticArrays.SelectMany(a => a))
+            {
+                var diagnostic = Diagnostic.Create(info.Descriptor, info.Location?.ToLocation());
+                ctx.ReportDiagnostic(diagnostic);
+            }
+        });
+
+        var descriptors = results
+            .Select((result, ctx) => result.Descriptor)
+            .Where(d => d is not null)
+            .Collect();
+
+        context.RegisterSourceOutput(descriptors, static (ctx, list) =>
         {
             var descriptors = list.Distinct().ToList();
             if (descriptors.Count == 0) return;
