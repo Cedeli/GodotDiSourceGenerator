@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
@@ -19,6 +19,13 @@
       </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Remove="AnalyzerReleases.Shipped.md" />
+      <AdditionalFiles Include="Build\AnalyzerReleases.Shipped.md" />
+      <AdditionalFiles Remove="AnalyzerReleases.Unshipped.md" />
+      <AdditionalFiles Include="Build\AnalyzerReleases.Unshipped.md" />
+    </ItemGroup>
+    
     <!-- <ItemGroup>
       <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" 
           PackagePath="analyzers/dotnet/cs" Visible="false" />

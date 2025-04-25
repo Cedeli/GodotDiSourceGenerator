@@ -4,5 +4,6 @@ namespace GodotDiSourceGenerator;
 
 public sealed record DiagnosticInfo(
     DiagnosticDescriptor Descriptor,
-    LocationInfo? Location
+    LocationInfo? Location,
+    params object?[] Arguments
 );

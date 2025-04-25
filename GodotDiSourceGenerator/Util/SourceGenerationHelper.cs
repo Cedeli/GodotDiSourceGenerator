@@ -1,6 +1,6 @@
 namespace GodotDiSourceGenerator;
 
-public class SourceGenerationHelper
+public static class SourceGenerationHelper
 {
     public const string Attributes = """
                                   using System;

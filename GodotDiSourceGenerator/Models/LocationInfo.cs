@@ -8,7 +8,7 @@ public sealed record LocationInfo(string FilePath, TextSpan Span, LinePositionSp
     public Location ToLocation()
         => Location.Create(FilePath, Span, LineSpan);
 
-    public static LocationInfo? CreateFrom(SyntaxNode node)
+    public static LocationInfo? Create(SyntaxNode node)
         => Create(node.GetLocation());
 
     public static LocationInfo? Create(Location location)
