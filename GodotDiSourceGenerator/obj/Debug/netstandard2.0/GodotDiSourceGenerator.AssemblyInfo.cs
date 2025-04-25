@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GodotDiSourceGenerator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+532e10e428371d746f9ff20a896a0cf090a8f8c6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+796aac2d272605e292d2c740f1cfa320251cb838")]
 [assembly: System.Reflection.AssemblyProductAttribute("GodotDiSourceGenerator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GodotDiSourceGenerator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

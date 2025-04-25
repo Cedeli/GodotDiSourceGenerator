@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace GodotDiSourceGenerator;
 
@@ -9,26 +8,21 @@ public class RegistrationGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource("ServiceAttributes.g.cs", SourceGenerationHelper.Attributes));
+            ctx.AddSource("ServiceAttributes.generated.cs", SourceGenerationHelper.Attributes));
 
-        var transientProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "GodotDiSourceGenerator.TransientServiceAttribute",
-            (n, _) => n is ClassDeclarationSyntax,
-            (ctx, _) => (
-                Symbol: (INamedTypeSymbol)ctx.TargetSymbol,
-                Attr: ctx.Attributes[0],
-                IsSingleton: false));
+        var transientProvider = ServiceProviderFactory.CreateProvider(context,
+            "GodotDiSourceGenerator.TransientServiceAttribute", Lifetime.Transient);
+        var scopedProvider = ServiceProviderFactory.CreateProvider(context,
+            "GodotDiSourceGenerator.ScopedServiceAttribute", Lifetime.Scoped);
+        var singletonProvider = ServiceProviderFactory.CreateProvider(context,
+            "GodotDiSourceGenerator.SingletonServiceAttribute", Lifetime.Singleton);
 
-        var singletonProvider = context.SyntaxProvider.ForAttributeWithMetadataName(
-            "GodotDiSourceGenerator.SingletonServiceAttribute",
-            (n, _) => n is ClassDeclarationSyntax,
-            (ctx, _) => (
-                Symbol: (INamedTypeSymbol)ctx.TargetSymbol,
-                Attr: ctx.Attributes[0],
-                IsSingleton: true));
-
-        var services = transientProvider.Collect().Combine(singletonProvider.Collect())
-            .SelectMany((pair, _) => pair.Left.Concat(pair.Right));
+        var services = new[]
+        {
+            transientProvider,
+            scopedProvider,
+            singletonProvider
+        }.MergeProviders();
 
         var results = services.Select((item, _) =>
         {
@@ -36,7 +30,7 @@ public class RegistrationGenerator : IIncrementalGenerator
             var constructor = ConstructorSelector.SelectConstructor(item.Symbol, diagnostic);
             var descriptor = constructor is not null
                 ? new ServiceDescriptor(item.Symbol.ToDisplayString(),
-                    (item.Attr.ConstructorArguments[0].Value as INamedTypeSymbol)!.ToDisplayString(), item.IsSingleton,
+                    (item.Attr.ConstructorArguments[0].Value as INamedTypeSymbol)!.ToDisplayString(), item.Life,
                     constructor.Parameters.Select(p => p.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat))
                         .ToList())
                 : null;
@@ -47,7 +41,7 @@ public class RegistrationGenerator : IIncrementalGenerator
         var diagnostics = results
             .SelectMany((result, _) => result.Diagnostics)
             .Collect();
-        
+
         context.RegisterSourceOutput(diagnostics, (ctx, arr) =>
         {
             foreach (var info in arr)

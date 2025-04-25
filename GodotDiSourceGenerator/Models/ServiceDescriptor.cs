@@ -3,6 +3,6 @@ namespace GodotDiSourceGenerator;
 public record ServiceDescriptor(
     string Implementation,
     string Interface,
-    bool IsSingleton,
+    Lifetime Lifetime,
     IReadOnlyList<string> ParameterTypes
 );
