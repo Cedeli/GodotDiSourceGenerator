@@ -18,13 +18,6 @@
         <PrivateAssets>all</PrivateAssets>
       </PackageReference>
     </ItemGroup>
-
-    <ItemGroup>
-      <AdditionalFiles Remove="AnalyzerReleases.Shipped.md" />
-      <AdditionalFiles Include="Build\AnalyzerReleases.Shipped.md" />
-      <AdditionalFiles Remove="AnalyzerReleases.Unshipped.md" />
-      <AdditionalFiles Include="Build\AnalyzerReleases.Unshipped.md" />
-    </ItemGroup>
     
     <!-- <ItemGroup>
       <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" 

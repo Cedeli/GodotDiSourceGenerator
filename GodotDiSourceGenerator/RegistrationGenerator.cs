@@ -57,7 +57,7 @@ public class RegistrationGenerator : IIncrementalGenerator
         });
 
         var descriptors = results
-            .Select((result, ctx) => result.Descriptor)
+            .Select((result, _) => result.Descriptor)
             .Where(d => d is not null)
             .Collect();
 
