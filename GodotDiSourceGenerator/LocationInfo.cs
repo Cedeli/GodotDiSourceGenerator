@@ -8,9 +8,13 @@ public sealed record LocationInfo(string FilePath, TextSpan Span, LinePositionSp
     public Location ToLocation()
         => Location.Create(FilePath, Span, LineSpan);
 
-    public static LocationInfo? Create(Location? loc) => loc?.SourceTree is null
-        ? null
-        : new LocationInfo(
-            Location.Create(loc.SourceTree.FilePath, loc.SourceSpan, loc.GetLineSpan().Span).SourceTree!.FilePath,
-            loc.SourceSpan, loc.GetLineSpan().Span);
+    public static LocationInfo? CreateFrom(SyntaxNode node)
+        => Create(node.GetLocation());
+
+    public static LocationInfo? Create(Location location)
+    {
+        return location.SourceTree is null
+            ? null
+            : new LocationInfo(location.SourceTree.FilePath, location.SourceSpan, location.GetLineSpan().Span);
+    }
 }

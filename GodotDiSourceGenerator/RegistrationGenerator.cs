@@ -18,15 +18,28 @@ public class RegistrationGenerator : IIncrementalGenerator
                 predicate: static (s, _) => s is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
                 transform: static (ctx, _) =>
                 {
+                    var diagnosticBuilder = ImmutableArray.CreateBuilder<DiagnosticInfo>();
+                    ServiceDescriptor? descriptor = null;
+
                     var classDeclaration = (ClassDeclarationSyntax)ctx.Node;
                     var model = ctx.SemanticModel;
 
                     var symbol = model.GetDeclaredSymbol(classDeclaration);
 
-                    if (symbol == null) return new ServiceResult(null, ImmutableArray<DiagnosticInfo>.Empty);
-
-                    var diagnosticBuilder = ImmutableArray.CreateBuilder<DiagnosticInfo>();
-                    ServiceDescriptor? descriptor = null;
+                    if (symbol == null)
+                    {
+                        var dd = new DiagnosticDescriptor(
+                            "DI1001",
+                            "Could not determine symbol",
+                            $"Could not determine symbol",
+                            "DependencyInjection",
+                            DiagnosticSeverity.Error,
+                            true
+                        );
+                        diagnosticBuilder.Add(new DiagnosticInfo(dd,
+                            LocationInfo.Create(classDeclaration.GetLocation())));
+                        return new ServiceResult(null, diagnosticBuilder.ToImmutable());
+                    }
 
                     var attributes = symbol.GetAttributes();
                     foreach (var attribute in attributes)
@@ -35,7 +48,21 @@ public class RegistrationGenerator : IIncrementalGenerator
 
                         if (attributeName is not ("TransientServiceAttribute" or "SingletonServiceAttribute")) continue;
 
-                        var serviceType = (INamedTypeSymbol)attribute.ConstructorArguments[0].Value!;
+                        if (attribute.ConstructorArguments.Length == 0 ||
+                            attribute.ConstructorArguments[0].Value is not INamedTypeSymbol serviceType)
+                        {
+                            var dd = new DiagnosticDescriptor(
+                                "DI1001",
+                                "Could not determine service type",
+                                $"Could not determine service type",
+                                "DependencyInjection",
+                                DiagnosticSeverity.Error,
+                                true
+                            );
+                            diagnosticBuilder.Add(new DiagnosticInfo(dd,
+                                LocationInfo.Create(classDeclaration.GetLocation())));
+                            return new ServiceResult(null, diagnosticBuilder.ToImmutable());
+                        }
 
                         var constructors = symbol.Constructors
                             .Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic)
@@ -44,17 +71,19 @@ public class RegistrationGenerator : IIncrementalGenerator
                         if (constructors.Length <= 0)
                         {
                             var dd = new DiagnosticDescriptor(
-                                "DI1001",
-                                "No public constructors",
-                                $"Type '{symbol.Name}' has no public constructors.",
-                                "DependencyInjection",
-                                DiagnosticSeverity.Error,
-                                true
+                                id: "DI1001",
+                                title: "No public constructors",
+                                messageFormat: $"Type '{symbol.Name}' must have at least one public constructor for DI",
+                                description:
+                                "Dependency-injected services require a public constructor so the container can create instances.",
+                                category: "DependencyInjection",
+                                defaultSeverity: DiagnosticSeverity.Error,
+                                isEnabledByDefault: true
                             );
 
                             diagnosticBuilder.Add(new DiagnosticInfo(dd,
                                 LocationInfo.Create(classDeclaration.GetLocation())));
-                            continue;
+                            return new ServiceResult(null, diagnosticBuilder.ToImmutable());
                         }
 
                         var target = constructors
@@ -82,9 +111,9 @@ public class RegistrationGenerator : IIncrementalGenerator
                                 var dd = new DiagnosticDescriptor(
                                     "DI1002",
                                     "Ambiguous constructor",
-                                    $"Type '{symbol.Name}' has multiple constructors with {maxParams} parameters",
+                                    $"Type '{symbol.Name}' has multiple constructors with {maxParams} parameters; consider annotating one with [InjectionConstructor]",
                                     "DependencyInjection",
-                                    DiagnosticSeverity.Error,
+                                    DiagnosticSeverity.Warning,
                                     true
                                 );
                                 diagnosticBuilder.Add(new DiagnosticInfo(dd,
