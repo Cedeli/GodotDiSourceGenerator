@@ -55,10 +55,19 @@ public class RegistrationGenerator : IIncrementalGenerator
             .Where(d => d is not null)
             .Collect();
 
+        var scopeRootProvider =
+            ServiceProviderFactory.CreateProvider(context, "GodotDiSourceGenerator.ScopeRootAttribute").Collect();
+
+        context.RegisterSourceOutput(scopeRootProvider, static (ctx, arr) =>
+        {
+            var symbols = arr.Distinct(SymbolEqualityComparer.Default).ToList();
+            Emitter.EmitScope(ctx, symbols);
+        });
+
         context.RegisterSourceOutput(descriptors, static (ctx, arr) =>
         {
             var descriptors = arr.Distinct().ToList();
-            Emitter.Emit(ctx, descriptors);
+            Emitter.EmitRegistry(ctx, descriptors);
         });
     }
 }

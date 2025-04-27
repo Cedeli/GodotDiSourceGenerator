@@ -3,9 +3,9 @@ using Microsoft.CodeAnalysis;
 
 namespace GodotDiSourceGenerator;
 
-public class ConstructorSelector
+internal static class ConstructorSelector
 {
-    public static IMethodSymbol? SelectConstructor(INamedTypeSymbol symbol, DiagnosticBuilder builder)
+    internal static IMethodSymbol? SelectConstructor(INamedTypeSymbol symbol, DiagnosticBuilder builder)
     {
         var constructors = symbol.Constructors
             .Where(c => c.DeclaredAccessibility != Accessibility.Private && !c.IsStatic)

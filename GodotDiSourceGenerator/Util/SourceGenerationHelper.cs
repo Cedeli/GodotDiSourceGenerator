@@ -10,29 +10,32 @@ public static class SourceGenerationHelper
 
                                      namespace GodotDiSourceGenerator
                                      {
-                                         [AttributeUsage(AttributeTargets.Class)]
-                                         public sealed class TransientServiceAttribute : Attribute
-                                         {
-                                             public TransientServiceAttribute(Type serviceType) => ServiceType = serviceType;
-                                             public Type ServiceType { get; }
-                                         }
+                                            [AttributeUsage(AttributeTargets.Class)]
+                                            public sealed class TransientServiceAttribute : Attribute
+                                            {
+                                                public TransientServiceAttribute(Type serviceType) => ServiceType = serviceType;
+                                                public Type ServiceType { get; }
+                                            }
                                          
-                                         [AttributeUsage(AttributeTargets.Class)]
-                                         public sealed class ScopedServiceAttribute : Attribute
-                                         {
-                                             public ScopedServiceAttribute(Type serviceType) => ServiceType = serviceType;
-                                             public Type ServiceType { get; }
-                                         }
+                                            [AttributeUsage(AttributeTargets.Class)]
+                                            public sealed class ScopedServiceAttribute : Attribute
+                                            {
+                                                public ScopedServiceAttribute(Type serviceType) => ServiceType = serviceType;
+                                                public Type ServiceType { get; }
+                                            }
                                      
-                                         [AttributeUsage(AttributeTargets.Class)]
-                                         public sealed class SingletonServiceAttribute : Attribute
-                                         {
-                                             public SingletonServiceAttribute(Type serviceType) => ServiceType = serviceType;
-                                             public Type ServiceType { get; }
-                                         }
+                                            [AttributeUsage(AttributeTargets.Class)]
+                                            public sealed class SingletonServiceAttribute : Attribute
+                                            {
+                                                public SingletonServiceAttribute(Type serviceType) => ServiceType = serviceType;
+                                                public Type ServiceType { get; }
+                                            }
                                          
-                                         [AttributeUsage(AttributeTargets.Constructor)]
-                                         public sealed class InjectionConstructorAttribute : Attribute { }
+                                            [AttributeUsage(AttributeTargets.Constructor)]
+                                            public sealed class ConstructorAttribute : Attribute { }
+                                         
+                                            [AttributeUsage(AttributeTargets.Class)]
+                                            public sealed class ScopeRootAttribute : Attribute { }
                                      }
                                      """;
     

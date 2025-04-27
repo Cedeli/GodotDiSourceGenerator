@@ -17,7 +17,7 @@ internal static class Rules
         id: "DI1002",
         title: "Ambiguous constructor",
         messageFormat:
-        "Type '{0}' has multiple constructors with {1} parameters; consider annotating one with [InjectionConstructor]",
+        "Type '{0}' has multiple constructors with {1} parameters; consider annotating one with [Constructor]",
         category: "DependencyInjection",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true
