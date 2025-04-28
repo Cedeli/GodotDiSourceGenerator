@@ -9,3 +9,6 @@ C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator\bin\D
 C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator\obj\Debug\netstandard2.0\GodotDiSourceGenerator.dll
 C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator\obj\Debug\netstandard2.0\GodotDiSourceGenerator.pdb
 C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator\obj\Debug\netstandard2.0\GodotDiSourceGenerator.sourcelink.json
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator\bin\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.dll
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator\bin\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.pdb
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator\obj\Debug\netstandard2.0\GodotDiS.868392EE.Up2Date

@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GodotDiSourceGenerator", "GodotDiSourceGenerator\GodotDiSourceGenerator.csproj", "{5F8C912D-08E0-442F-A4A2-761E8B3ECC6B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GodotDiSourceGenerator.Attributes", "GodotDiSourceGenerator.Attributes\GodotDiSourceGenerator.Attributes.csproj", "{467840B8-BA8C-41E9-960B-37099815BCB3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{5F8C912D-08E0-442F-A4A2-761E8B3ECC6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F8C912D-08E0-442F-A4A2-761E8B3ECC6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F8C912D-08E0-442F-A4A2-761E8B3ECC6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{467840B8-BA8C-41E9-960B-37099815BCB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{467840B8-BA8C-41E9-960B-37099815BCB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{467840B8-BA8C-41E9-960B-37099815BCB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{467840B8-BA8C-41E9-960B-37099815BCB3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

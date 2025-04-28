@@ -1,21 +1,19 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using GodotDiSourceGenerator.Attributes;
+using Microsoft.CodeAnalysis;
 
 namespace GodotDiSourceGenerator;
 
 [Generator]
-public class RegistrationGenerator : IIncrementalGenerator
+public class GodotDiGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource("ServiceAttributes.generated.cs", SourceGenerationHelper.Attributes));
-
         var transientProvider = ServiceProviderFactory.CreateProvider(context,
-            "GodotDiSourceGenerator.TransientServiceAttribute", Lifetime.Transient);
+            typeof(TransientServiceAttribute).FullName!, Lifetime.Transient);
         var scopedProvider = ServiceProviderFactory.CreateProvider(context,
-            "GodotDiSourceGenerator.ScopedServiceAttribute", Lifetime.Scoped);
+            typeof(ScopedServiceAttribute).FullName!, Lifetime.Scoped);
         var singletonProvider = ServiceProviderFactory.CreateProvider(context,
-            "GodotDiSourceGenerator.SingletonServiceAttribute", Lifetime.Singleton);
+            typeof(SingletonServiceAttribute).FullName!, Lifetime.Singleton);
 
         var services = new[]
         {
@@ -56,7 +54,7 @@ public class RegistrationGenerator : IIncrementalGenerator
             .Collect();
 
         var scopeRootProvider =
-            ServiceProviderFactory.CreateProvider(context, "GodotDiSourceGenerator.ScopeRootAttribute").Collect();
+            ServiceProviderFactory.CreateProvider(context, typeof(ScopeRootAttribute).FullName!).Collect();
 
         context.RegisterSourceOutput(scopeRootProvider, static (ctx, arr) =>
         {

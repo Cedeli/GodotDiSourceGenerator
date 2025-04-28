@@ -1,0 +1,11 @@
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\bin\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.deps.json
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\bin\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.dll
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\bin\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.pdb
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.csproj.AssemblyReference.cache
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.AssemblyInfoInputs.cache
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.AssemblyInfo.cs
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.csproj.CoreCompileInputs.cache
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.sourcelink.json
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.dll
+C:\Users\cedri\RiderProjects\GodotDiSourceGenerator\GodotDiSourceGenerator.Attributes\obj\Debug\netstandard2.0\GodotDiSourceGenerator.Attributes.pdb
